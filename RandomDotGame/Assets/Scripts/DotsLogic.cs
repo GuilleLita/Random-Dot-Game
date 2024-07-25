@@ -55,6 +55,7 @@ public class DotsLogic : MonoBehaviour
 
     public void MoveDot(Touch touch)
     {
+        if (!fingerToIndex.ContainsKey(touch.fingerId)) return;
         Dot index = fingerToIndex[touch.fingerId];  
         index.dot.transform.position = touch.position;
     }

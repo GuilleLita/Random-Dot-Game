@@ -12,6 +12,7 @@ public class PressScreen : MonoBehaviour
     public GameObject dots;
     public bool inSettings = false;
 
+    private bool isInSomething = false;
 
     // Start is called before the first frame update
     void Start()
@@ -32,22 +33,31 @@ public class PressScreen : MonoBehaviour
             {
                 Touch touch = Input.GetTouch(i);
 
-                bool isInMenu = RectTransformUtility.RectangleContainsScreenPoint((RectTransform)menuSetings.transform, touch.position);    
+                bool isInMenu = RectTransformUtility.RectangleContainsScreenPoint((RectTransform)menuSetings.transform, touch.position);
 
                 //If touch in settigns button, ignore
-                if (RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton.transform, touch.position) ||
-                    (isInMenu && menuSetings.activeInHierarchy) ) return;
-                //Hide press screen and settings button if there is a touch
-                pressScreen.SetActive(false);
-                settingsButton.SetActive(false);
+                if ((RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton.transform, touch.position) && settingsButton.activeInHierarchy) ||
+                    (isInMenu && menuSetings.activeInHierarchy)) {
+                    isInSomething = true;
+                    return;
+                }
+                
+                
                 //Else, do touch logic
                 switch (touch.phase)
                 {
                     case TouchPhase.Began:
+
                         Debug.Log("Touch detected");
-                        if (!dots.GetComponent<DotsLogic>().isWinner) { dots.GetComponent<DotsLogic>().AddDot(touch); }
+                        if (!dots.GetComponent<DotsLogic>().isWinner && !isInSomething) {
+                            //Hide press screen and settings button if there is a touch
+                            pressScreen.SetActive(false);
+                            settingsButton.SetActive(false);
+                            dots.GetComponent<DotsLogic>().AddDot(touch);
+                        }
                         break;
                     case TouchPhase.Moved:
+                        if (isInSomething) return;
                         Debug.Log("Touch moved");
                         if (!dots.GetComponent<DotsLogic>().isWinner) {
                             dots.GetComponent<DotsLogic>().MoveDot(touch);
@@ -60,7 +70,11 @@ public class PressScreen : MonoBehaviour
                         break;
                     case TouchPhase.Ended:
                         Debug.Log("Touch ended");
-                            dots.GetComponent<DotsLogic>().RemoveDot(touch.fingerId);
+                        if (isInSomething) {
+                            isInSomething = false;
+                            return; 
+                        } 
+                        dots.GetComponent<DotsLogic>().RemoveDot(touch.fingerId);
                         
                         break;
                 }
