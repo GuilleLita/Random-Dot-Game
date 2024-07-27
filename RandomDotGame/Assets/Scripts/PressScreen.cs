@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class PressScreen : MonoBehaviour
 {   
     public GameObject pressScreen;
-    private GameObject settingsButton;
+    public GameObject settingsButton;
     public GameObject menuSetings;
 
     public GameObject dots;
@@ -19,14 +19,14 @@ public class PressScreen : MonoBehaviour
     {
         dots = GameObject.Find("Dots");
         pressScreen = GameObject.Find("InitialText");
-        settingsButton = GameObject.Find("SettingsButton");
+        //settingsButton = GameObject.Find("SettingsButton");
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.touchCount >= 1 && !inSettings)
+        if (Input.touchCount >= 1)
         {          
 
             for (int i = 0; i < Input.touchCount; ++i)
@@ -36,9 +36,9 @@ public class PressScreen : MonoBehaviour
                 bool isInMenu = RectTransformUtility.RectangleContainsScreenPoint((RectTransform)menuSetings.transform, touch.position);
 
                 //If touch in settigns button, ignore
-                if ((RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton.transform, touch.position) && settingsButton.activeInHierarchy) ||
-                    (isInMenu && menuSetings.activeInHierarchy)) {
-                    isInSomething = true;
+                //if ((RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton.transform, touch.position) && settingsButton.activeInHierarchy) ||
+                   if (isInMenu) {
+                    //isInSomething = true;
                     return;
                 }
                 
@@ -52,7 +52,14 @@ public class PressScreen : MonoBehaviour
                         if (!dots.GetComponent<DotsLogic>().isWinner && !isInSomething) {
                             //Hide press screen and settings button if there is a touch
                             pressScreen.SetActive(false);
-                            settingsButton.SetActive(false);
+                            if (inSettings)
+                            {
+                                settingsButton.GetComponent<MEnuAnimator>().CloseSettings();
+                            }
+                            else
+                            {
+                                menuSetings.SetActive(false);
+                            }
                             dots.GetComponent<DotsLogic>().AddDot(touch);
                         }
                         break;
@@ -72,7 +79,6 @@ public class PressScreen : MonoBehaviour
                         Debug.Log("Touch ended");
                         if (isInSomething) {
                             isInSomething = false;
-                            return; 
                         } 
                         dots.GetComponent<DotsLogic>().RemoveDot(touch.fingerId);
                         
@@ -84,7 +90,7 @@ public class PressScreen : MonoBehaviour
         else if (Input.touchCount == 0 && !inSettings)
         {
             pressScreen.SetActive(true);
-            settingsButton.SetActive(true);
+            menuSetings.SetActive(true);
             if (dots.GetComponent<DotsLogic>().isWinner)
             {
                 dots.GetComponent<DotsLogic>()._Reset();
