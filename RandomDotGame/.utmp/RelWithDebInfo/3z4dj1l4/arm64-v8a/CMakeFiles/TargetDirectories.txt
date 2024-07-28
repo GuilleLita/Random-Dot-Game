@@ -1,0 +1,5 @@
+D:/Proyectosuinity/RandomDotGame/RandomDotGame/.utmp/RelWithDebInfo/3z4dj1l4/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/Proyectosuinity/RandomDotGame/RandomDotGame/.utmp/RelWithDebInfo/3z4dj1l4/arm64-v8a/CMakeFiles/rebuild_cache.dir
+D:/Proyectosuinity/RandomDotGame/RandomDotGame/.utmp/RelWithDebInfo/3z4dj1l4/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir
+D:/Proyectosuinity/RandomDotGame/RandomDotGame/.utmp/RelWithDebInfo/3z4dj1l4/arm64-v8a/FramePacing/CMakeFiles/edit_cache.dir
+D:/Proyectosuinity/RandomDotGame/RandomDotGame/.utmp/RelWithDebInfo/3z4dj1l4/arm64-v8a/FramePacing/CMakeFiles/rebuild_cache.dir

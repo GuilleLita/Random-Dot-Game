@@ -7,6 +7,7 @@ public class PressScreen : MonoBehaviour
 {   
     public GameObject pressScreen;
     public GameObject settingsButton;
+    public GameObject settingsButton2;
     public GameObject menuSetings;
 
     public GameObject dots;
@@ -33,7 +34,7 @@ public class PressScreen : MonoBehaviour
             {
                 Touch touch = Input.GetTouch(i);
 
-                bool isInMenu = RectTransformUtility.RectangleContainsScreenPoint((RectTransform)menuSetings.transform, touch.position);
+                bool isInMenu = RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton2.transform, touch.position);
 
                 //If touch in settigns button, ignore
                 //if ((RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton.transform, touch.position) && settingsButton.activeInHierarchy) ||
