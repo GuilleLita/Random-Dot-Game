@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using RDG;
 
 
 
@@ -112,7 +113,7 @@ public class DotsLogic : MonoBehaviour
                 dots[i] = null;
             }
         }
-        Handheld.Vibrate();
+        if (PlayerPrefs.GetInt("Vibracion", 1) == 1) Vibration.Vibrate(600, 10);
         yield return new WaitForSeconds(1.0f);
         
     }

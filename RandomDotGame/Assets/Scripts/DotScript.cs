@@ -46,7 +46,7 @@ public class DotScript : MonoBehaviour
         
         maxAmp = 0.6f;
         minAmp = 0.05f;
-        scaleTarget = new Vector3(0.8f, 0.8f, 1.6f);
+        scaleTarget = new Vector3(0.9f, 0.9f, 0.9f);
         
     }
 
