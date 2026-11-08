@@ -33,7 +33,7 @@ public class Loader : MonoBehaviour
         }
 
         Application.targetFrameRate = 60;
-        Random.InitState(System.DateTime.Now.Millisecond);
+        Random.InitState((int)System.DateTime.Now.Ticks); // Millisecond only gave 1000 possible seeds
         Camera.transform.position = new Vector3(Screen.width/2, Screen.height/2, -10);
         Camera.GetComponent<Camera>().orthographicSize = (float)Screen.height/2;
     }

@@ -14,21 +14,24 @@ public class DotScript : MonoBehaviour
     float minAmp;
 
     private bool winner = false;
-    Color[] colors = new Color[]
-        {
-            new Color(0.0f, 0.4f, 1.0f),
-            new Color(0.2f, 1.0f, 0.4f),
-            new Color(1.0f, 0.2f, 0.2f),
-            new Color(0.4f, 1.0f, 0.4f),
-            new Color(0.0f, 1.0f, 1.0f),
-            new Color(1.0f, 0.0f, 1.0f),
-            new Color(1.0f, 0.8f, 0.0f),
-            new Color(0.0f, 1.0f, 0.2f),
-            new Color(0.6f, 1.0f, 0.0f),
-            new Color(0.2f, 1.0f, 0.8f),
-            new Color(1.0f, 0.6f, 0.2f),
-            new Color(1.0f, 0.2f, 1.0f)
+    // Distinct, easy to tell apart colors (each active dot gets a different one)
+    static readonly Color[] colors = new Color[]
+    {
+        new Color(0.0f, 0.4f, 1.0f),  // blue
+        new Color(0.2f, 1.0f, 0.4f),  // green
+        new Color(1.0f, 0.2f, 0.2f),  // red
+        new Color(1.0f, 0.8f, 0.0f),  // yellow
+        new Color(0.0f, 1.0f, 1.0f),  // cyan
+        new Color(1.0f, 0.0f, 1.0f),  // magenta
+        new Color(1.0f, 0.5f, 0.0f),  // orange
+        new Color(0.6f, 0.3f, 1.0f),  // purple
+        new Color(0.6f, 1.0f, 0.0f),  // lime
+        new Color(1.0f, 0.4f, 0.7f),  // pink
+        new Color(0.2f, 1.0f, 0.8f),  // turquoise
+        new Color(1.0f, 1.0f, 1.0f)   // white
     };
+
+    public static int ColorCount => colors.Length;
    
 
     Vector3 scale;
@@ -59,7 +62,8 @@ public class DotScript : MonoBehaviour
         }
         else if(transform.localScale[2] < scaleTarget[2])
         {
-            for (int i = 0; i < 3; ++i) scale[i] = transform.localScale[i] + 0.01f;
+            // Frame-rate independent growth (0.6 units/second, same as 0.01/frame at 60 fps)
+            for (int i = 0; i < 3; ++i) scale[i] = Mathf.Min(transform.localScale[i] + 0.6f * Time.deltaTime, scaleTarget[i]);
             transform.localScale = scale;
         }
 
@@ -70,8 +74,12 @@ public class DotScript : MonoBehaviour
 
     public void SetRandomColor()
     {
-        int index = Random.Range(0, colors.Length);
-        Color color = colors[index];
+        SetColor(Random.Range(0, colors.Length));
+    }
+
+    public void SetColor(int index)
+    {
+        Color color = colors[Mathf.Clamp(index, 0, colors.Length - 1)];
         innerCircle.GetComponent<Image>().color = color;
         outerCircle.GetComponent<Image>().color = color;
     }

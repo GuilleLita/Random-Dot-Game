@@ -22,11 +22,15 @@ public class RewardedAd : MonoBehaviour, IUnityAdsLoadListener, IUnityAdsShowLis
 
         // Disable the button until the ad is ready to show:
         _showAdButton.interactable = false;
+        // Register the click listener only once (it used to be added on every load,
+        // so after a few ads one click triggered several Show calls)
+        _showAdButton.onClick.AddListener(ShowAd);
     }
 
     // Call this public method when you want to get an ad ready to show.
     public void LoadAd()
     {
+        if (string.IsNullOrEmpty(_adUnitId)) return; // unsupported platform (e.g. editor)
         // IMPORTANT! Only load content AFTER initialization (in this example, initialization is handled in a different script).
         Debug.Log("Loading Ad: " + _adUnitId);
         Advertisement.Load(_adUnitId, this);
@@ -39,8 +43,6 @@ public class RewardedAd : MonoBehaviour, IUnityAdsLoadListener, IUnityAdsShowLis
 
         if (adUnitId.Equals(_adUnitId))
         {
-            // Configure the button to call the ShowAd() method when clicked:
-            _showAdButton.onClick.AddListener(ShowAd);
             // Enable the button for users to click:
             _showAdButton.interactable = true;
         }
@@ -49,6 +51,7 @@ public class RewardedAd : MonoBehaviour, IUnityAdsLoadListener, IUnityAdsShowLis
     // Implement a method to execute when the user clicks the button:
     public void ShowAd()
     {
+        if (!_showAdButton.interactable) return;
         // Disable the button:
         _showAdButton.interactable = false;
         // Then show the ad:
@@ -63,6 +66,8 @@ public class RewardedAd : MonoBehaviour, IUnityAdsLoadListener, IUnityAdsShowLis
             Debug.Log("Unity Ads Rewarded Ad Completed");
             // Grant a reward.
         }
+        // Load the next ad so the button can be used again
+        LoadAd();
     }
 
     // Implement Load and Show Listener error callbacks:
@@ -75,7 +80,8 @@ public class RewardedAd : MonoBehaviour, IUnityAdsLoadListener, IUnityAdsShowLis
     public void OnUnityAdsShowFailure(string adUnitId, UnityAdsShowError error, string message)
     {
         Debug.Log($"Error showing Ad Unit {adUnitId}: {error.ToString()} - {message}");
-        // Use the error details to determine whether to try to load another ad.
+        // Try to get a new ad ready
+        LoadAd();
     }
 
     public void OnUnityAdsShowStart(string adUnitId) { }

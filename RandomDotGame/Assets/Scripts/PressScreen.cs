@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PressScreen : MonoBehaviour
-{   
+{
     public GameObject pressScreen;
     public GameObject settingsButton;
     public GameObject settingsButton2;
@@ -13,93 +10,73 @@ public class PressScreen : MonoBehaviour
     public GameObject dots;
     public bool inSettings = false;
 
-    private bool isInSomething = false;
+    private DotsLogic dotsLogic;
+    private MEnuAnimator menuAnimator;
 
-    // Start is called before the first frame update
     void Start()
     {
         dots = GameObject.Find("Dots");
         pressScreen = GameObject.Find("InitialText");
-        //settingsButton = GameObject.Find("SettingsButton");
-
+        dotsLogic = dots.GetComponent<DotsLogic>();
+        menuAnimator = settingsButton != null ? settingsButton.GetComponent<MEnuAnimator>() : null;
     }
 
-    // Update is called once per frame
+    private bool IsInMenu(Vector2 position)
+    {
+        return (menuSetings.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint((RectTransform)menuSetings.transform, position))
+            || (settingsButton2.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton2.transform, position));
+    }
+
     void Update()
     {
-        if (Input.touchCount >= 1)
-        {          
+        int touchCount = Input.touchCount;
 
-            for (int i = 0; i < Input.touchCount; ++i)
-            {
-                Touch touch = Input.GetTouch(i);
-
-                bool isInMenu = RectTransformUtility.RectangleContainsScreenPoint((RectTransform)menuSetings.transform, touch.position) || RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton2.transform, touch.position);
-
-                //If touch in settigns button, ignore
-                //if ((RectTransformUtility.RectangleContainsScreenPoint((RectTransform)settingsButton.transform, touch.position) && settingsButton.activeInHierarchy) ||
-                   if (isInMenu) {
-                    //isInSomething = true;
-                    return;
-                }
-                
-                
-                //Else, do touch logic
-                switch (touch.phase)
-                {
-                    case TouchPhase.Began:
-
-                        Debug.Log("Touch detected");
-                        if (!dots.GetComponent<DotsLogic>().isWinner && !isInSomething) {
-                            //Hide press screen and settings button if there is a touch
-                            pressScreen.SetActive(false);
-                            if (inSettings)
-                            {
-                                settingsButton.GetComponent<MEnuAnimator>().CloseSettings();
-                            }
-                            else
-                            {
-                                menuSetings.SetActive(false);
-                            }
-                            dots.GetComponent<DotsLogic>().AddDot(touch);
-                        }
-                        break;
-                    case TouchPhase.Moved:
-                        if (isInSomething) return;
-                        Debug.Log("Touch moved");
-                        if (!dots.GetComponent<DotsLogic>().isWinner) {
-                            dots.GetComponent<DotsLogic>().MoveDot(touch);
-                        }
-                        else if (dots.GetComponent<DotsLogic>().isWinnnerFinger(touch))
-                        {
-                            dots.GetComponent<DotsLogic>().MoveDot(touch);
-                        }   
-                        
-                        break;
-                    case TouchPhase.Ended:
-                        Debug.Log("Touch ended");
-                        if (isInSomething) {
-                            isInSomething = false;
-                        } 
-                        dots.GetComponent<DotsLogic>().RemoveDot(touch.fingerId);
-                        
-                        break;
-                }
-            }
-            
-        }
-        else if (Input.touchCount == 0 && !inSettings)
+        for (int i = 0; i < touchCount; ++i)
         {
-            pressScreen.SetActive(true);
-            menuSetings.SetActive(true);
-            if (dots.GetComponent<DotsLogic>().isWinner)
+            Touch touch = Input.GetTouch(i);
+
+            switch (touch.phase)
             {
-                dots.GetComponent<DotsLogic>()._Reset();
+                case TouchPhase.Began:
+                    // Touches that start on the menu belong to the UI, ignore them
+                    // (but keep processing the rest of the touches of this frame).
+                    if (dotsLogic.isWinner || IsInMenu(touch.position)) break;
+
+                    // Hide press screen and settings when the game starts
+                    pressScreen.SetActive(false);
+                    if (inSettings && menuAnimator != null) menuAnimator.CloseSettings();
+                    else menuSetings.SetActive(false);
+
+                    dotsLogic.AddDot(touch);
+                    break;
+
+                case TouchPhase.Moved:
+                case TouchPhase.Stationary:
+                    if (!dotsLogic.isWinner || dotsLogic.IsWinnerFinger(touch.fingerId))
+                        dotsLogic.MoveDot(touch);
+                    break;
+
+                case TouchPhase.Ended:
+                case TouchPhase.Canceled:
+                    // Canceled is sent by the OS when many fingers touch at once,
+                    // on palm rejection, etc. Not handling it left dots stuck on screen.
+                    dotsLogic.RemoveDot(touch.fingerId);
+                    break;
             }
         }
 
+        // Safety net: drop any dot whose finger is no longer on the screen
+        dotsLogic.SyncWithTouches();
 
-   
+        if (touchCount == 0)
+        {
+            if (dotsLogic.isWinner) dotsLogic._Reset();
+
+            if (!inSettings)
+            {
+                pressScreen.SetActive(true);
+                menuSetings.SetActive(true);
+            }
+        }
     }
 }
-
