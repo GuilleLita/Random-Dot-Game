@@ -40,7 +40,7 @@ public class PressScreen : MonoBehaviour
                 case TouchPhase.Began:
                     // Touches that start on the menu belong to the UI, ignore them
                     // (but keep processing the rest of the touches of this frame).
-                    if (dotsLogic.isWinner || IsInMenu(touch.position)) break;
+                    if (dotsLogic.isWinner || SkinShopUI.IsOpen || IsInMenu(touch.position)) break;
 
                     // Hide press screen and settings when the game starts
                     pressScreen.SetActive(false);

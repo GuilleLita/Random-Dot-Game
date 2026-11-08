@@ -14,24 +14,10 @@ public class DotScript : MonoBehaviour
     float minAmp;
 
     private bool winner = false;
-    // Distinct, easy to tell apart colors (each active dot gets a different one)
-    static readonly Color[] colors = new Color[]
-    {
-        new Color(0.0f, 0.4f, 1.0f),  // blue
-        new Color(0.2f, 1.0f, 0.4f),  // green
-        new Color(1.0f, 0.2f, 0.2f),  // red
-        new Color(1.0f, 0.8f, 0.0f),  // yellow
-        new Color(0.0f, 1.0f, 1.0f),  // cyan
-        new Color(1.0f, 0.0f, 1.0f),  // magenta
-        new Color(1.0f, 0.5f, 0.0f),  // orange
-        new Color(0.6f, 0.3f, 1.0f),  // purple
-        new Color(0.6f, 1.0f, 0.0f),  // lime
-        new Color(1.0f, 0.4f, 0.7f),  // pink
-        new Color(0.2f, 1.0f, 0.8f),  // turquoise
-        new Color(1.0f, 1.0f, 1.0f)   // white
-    };
+    private SkinDefinition skin;
 
-    public static int ColorCount => colors.Length;
+    /// <summary>Number of colors of the selected skin (each active dot gets a different one)</summary>
+    public static int ColorCount => SkinManager.Current.palette.Length;
    
 
     Vector3 scale;
@@ -41,6 +27,18 @@ public class DotScript : MonoBehaviour
         innerCircle = this.transform.GetChild(0).gameObject;
         outerCircle = this.transform.GetChild(1).gameObject;
         scale = transform.localScale;
+        ApplySkin(SkinManager.Current);
+    }
+
+    void ApplySkin(SkinDefinition s)
+    {
+        skin = s;
+        Image innerImage = innerCircle.GetComponent<Image>();
+        Image outerImage = outerCircle.GetComponent<Image>();
+        SkinVisuals.CaptureOriginals(innerImage.sprite, outerImage.sprite);
+        innerImage.sprite = SkinVisuals.Inner(s);
+        outerImage.sprite = SkinVisuals.Outer(s);
+        degreesPerSec = s.rotationSpeed;
     }
 
     // Start is called before the first frame update
@@ -74,12 +72,12 @@ public class DotScript : MonoBehaviour
 
     public void SetRandomColor()
     {
-        SetColor(Random.Range(0, colors.Length));
+        SetColor(Random.Range(0, skin.palette.Length));
     }
 
     public void SetColor(int index)
     {
-        Color color = colors[Mathf.Clamp(index, 0, colors.Length - 1)];
+        Color color = skin.palette[Mathf.Clamp(index, 0, skin.palette.Length - 1)];
         innerCircle.GetComponent<Image>().color = color;
         outerCircle.GetComponent<Image>().color = color;
     }
